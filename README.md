@@ -5,8 +5,9 @@ Systems Forge is a workspace for designing clean, composable native system compo
 ## Repository layout
 
 - [.gitignore](.gitignore)
-- [apps/](apps/) — consumer applications
+- [apps/](apps/) — end-user applications, CLI tools, etc.
 - [build/](build/) — build scripts and CI helpers
+- [benchmarks/](benchmarks/) — performance tests and comparisons
 - [components/](components/) — reusable system components
 - [docs/](docs/) — documentation
 - [interfaces/](interfaces/) — shared ABI/interface definitions

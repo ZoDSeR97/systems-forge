@@ -18,8 +18,7 @@ tls_arena_pool *tls_arena_pool_create(size_t arena_capacity)
     if (arena_capacity == 0)
         return NULL;
 
-    tls_arena_pool *pool =
-        (tls_arena_pool *)malloc(sizeof(*pool));
+    tls_arena_pool *pool = (tls_arena_pool *)malloc(sizeof(*pool));
 
     if (!pool)
         return NULL;
