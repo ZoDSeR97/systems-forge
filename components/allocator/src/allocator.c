@@ -47,15 +47,6 @@ arena *arena_create(size_t capacity)
     return block;
 }
 
-/**
- * @brief
- *  Allocate memory from the arena with the specified size and alignment.
- *  Returns NULL on failure.
- * @param arena
- * @param size
- * @param alignment
- * @return void*
- */
 void *arena_malloc(arena *arena, size_t size, size_t alignment)
 {
     if (!arena || size == 0)
@@ -93,11 +84,6 @@ void *arena_malloc(arena *arena, size_t size, size_t alignment)
     return result;
 }
 
-/**
- * @brief 
- *  Reset the arena to its initial state (i.e., free all allocated memory).
- * @param arena
- */
 void arena_reset(arena *arena)
 {
     if (!arena)
@@ -106,12 +92,6 @@ void arena_reset(arena *arena)
     arena->offset = 0;
 }
 
-/**
- * @brief 
- *  Destroy the arena and free all associated memory. 
- *  After this call, the arena pointer should not be used.
- * @param arena
- */
 void arena_destroy(arena *arena)
 {
     if (!arena)
@@ -125,35 +105,16 @@ void arena_destroy(arena *arena)
     free(arena);
 }
 
-/**
- * @brief
- *  Get the total capacity of the arena in bytes.
- *  Returns 0 if the arena is NULL.
- * @param arena 
- * @return size_t 
- */
 size_t arena_capacity(const arena *arena)
 {
     return arena ? arena->capacity : 0;
 }
 
-/**
- * @brief
- *  Get the amount of memory currently allocated in the arena in bytes.
- * @param arena 
- * @return size_t 
- */
 size_t arena_used(const arena *arena)
 {
     return arena ? arena->offset : 0;
 }
 
-/**
- * @brief
- *  Get the amount of memory still available for allocation in the arena in bytes.
- * @param arena 
- * @return size_t 
- */
 size_t arena_available(const arena *arena)
 {
     if (!arena)

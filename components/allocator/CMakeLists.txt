@@ -12,5 +12,5 @@ target_include_directories(allocator
 if (WIN32)
     # nothing needed
 else()
-    target_link_libraries(forge_allocator PUBLIC pthread)
+    target_link_libraries(allocator PUBLIC pthread)
 endif()
