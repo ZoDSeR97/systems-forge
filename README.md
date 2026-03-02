@@ -1,6 +1,8 @@
 # Systems Forge
 
-Systems Forge is a workspace for designing clean, composable native system components with a stable C ABI boundary for cross-language interoperability.
+Systems Forge is a workspace for designing clean, composable native system components with a stable C ABI boundary for cross-language interoperability. The aim is to provide a nice ecosystem of reusable components that can be easily integrated into various projects and languages.
+
+Build and test with CMake under MSYS2.
 
 ## Repository layout
 
