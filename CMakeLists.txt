@@ -8,7 +8,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
-add_subdirectory(components/allocator)
-add_subdirectory(components/highwayhash)
+add_subdirectory(libs/allocator)
+add_subdirectory(libs/highwayhash)
+add_subdirectory(libs/hashtable)
 
 add_subdirectory(benchmarks/allocator)

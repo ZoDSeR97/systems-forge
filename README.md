@@ -8,11 +8,9 @@ Build and test with CMake under MSYS2.
 
 - [.gitignore](.gitignore)
 - [apps/](apps/) — end-user applications, CLI tools, etc.
-- [build/](build/) — build scripts and CI helpers
 - [benchmarks/](benchmarks/) — performance tests and comparisons
-- [components/](components/) — reusable system components
+- [libs/](libs/) — shared libraries
 - [docs/](docs/) — documentation
-- [interfaces/](interfaces/) — shared ABI/interface definitions
 - [playground/](playground/) — language examples and experiments
 
 ## Notes

@@ -9,5 +9,5 @@ target_link_libraries(allocator_bench
 
 target_include_directories(allocator_bench
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/components/allocator/include
+        ${CMAKE_SOURCE_DIR}/libs/allocator/include
 )

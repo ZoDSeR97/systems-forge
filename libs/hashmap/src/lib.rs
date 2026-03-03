@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::ffi::{CStr};
 use std::os::raw::{c_char, c_void};
 use std::ptr;
-use std::mem;
 
 /// Opaque struct for C ABI
 #[repr(C)]
@@ -10,7 +9,7 @@ pub struct hmap {
     inner: HashMap<String, *mut c_void>,
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn hmap_create(initial_capacity: usize) -> *mut hmap {
     let map = hmap {
         inner: HashMap::with_capacity(initial_capacity),
@@ -18,7 +17,7 @@ pub extern "C" fn hmap_create(initial_capacity: usize) -> *mut hmap {
     Box::into_raw(Box::new(map))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn hmap_put(map: *mut hmap, key: *const c_char, value: *mut c_void) -> i32 {
     if map.is_null() || key.is_null() {
         return 1;
@@ -32,7 +31,7 @@ pub extern "C" fn hmap_put(map: *mut hmap, key: *const c_char, value: *mut c_voi
     0
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn hmap_get(map: *const hmap, key: *const c_char) -> *mut c_void {
     if map.is_null() || key.is_null() {
         return ptr::null_mut();
@@ -48,7 +47,7 @@ pub extern "C" fn hmap_get(map: *const hmap, key: *const c_char) -> *mut c_void 
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn hmap_remove(map: *mut hmap, key: *const c_char) -> i32 {
     if map.is_null() || key.is_null() {
         return 1;
@@ -65,7 +64,7 @@ pub extern "C" fn hmap_remove(map: *mut hmap, key: *const c_char) -> i32 {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn hmap_destroy(map: *mut hmap) {
     if map.is_null() {
         return;
