@@ -6,7 +6,7 @@
 
 extern "C"
 {
-    #include "allocator.h"
+    #include "arena.h"
 }
 
 static constexpr size_t ALLOC_SIZE = 64;
@@ -22,8 +22,7 @@ static void benchmark_malloc()
     for (size_t i = 0; i < NUM_ALLOCS; ++i)
     {
         void *ptr = std::malloc(ALLOC_SIZE);
-        if (!ptr)
-            std::abort();
+        if (!ptr) std::abort();
         std::free(ptr);
     }
 
@@ -35,17 +34,15 @@ static void benchmark_malloc()
 
 static void benchmark_arena()
 {
-    arena *arena = arena_create(ARENA_CAPACITY);
-    if (!arena)
-        std::abort();
+    arena *arena = arena_init(ARENA_CAPACITY);
+    if (!arena) std::abort();
 
     auto start = clock_type::now();
 
     for (size_t i = 0; i < NUM_ALLOCS; ++i)
     {
         void *ptr = arena_malloc(arena, ALLOC_SIZE, 0);
-        if (!ptr)
-            std::abort();
+        if (!ptr) std::abort();
     }
 
     auto end = clock_type::now();
@@ -53,55 +50,7 @@ static void benchmark_arena()
 
     std::cout << "arena: " << diff.count() << " s\n";
 
-    arena_destroy(arena);
-}
-
-static void benchmark_threadsafe_arena()
-{
-    threadsafe_arena *arena = threadsafe_arena_create(ARENA_CAPACITY);
-
-    if (!arena)
-        std::abort();
-
-    auto start = clock_type::now();
-
-    for (size_t i = 0; i < NUM_ALLOCS; ++i)
-    {
-        void *ptr = threadsafe_arena_malloc(arena, ALLOC_SIZE, 0);
-        if (!ptr)
-            std::abort();
-    }
-
-    auto end = clock_type::now();
-    std::chrono::duration<double> diff = end - start;
-
-    std::cout << "threadsafe_arena: " << diff.count() << " s\n";
-
-    threadsafe_arena_destroy(arena);
-}
-
-static void benchmark_tls_arena()
-{
-    tls_arena_pool *pool = tls_arena_pool_create(ARENA_CAPACITY);
-
-    if (!pool)
-        std::abort();
-
-    auto start = clock_type::now();
-
-    for (size_t i = 0; i < NUM_ALLOCS; ++i)
-    {
-        void *ptr = tls_arena_malloc(pool, ALLOC_SIZE, 0);
-        if (!ptr)
-            std::abort();
-    }
-
-    auto end = clock_type::now();
-    std::chrono::duration<double> diff = end - start;
-
-    std::cout << "tls_arena_pool: " << diff.count() << " s\n";
-
-    tls_arena_pool_destroy(pool);
+    arena_free(arena);
 }
 
 int main()
@@ -112,8 +61,6 @@ int main()
 
     benchmark_malloc();
     benchmark_arena();
-    benchmark_threadsafe_arena();
-    benchmark_tls_arena();
 
     return 0;
 }
