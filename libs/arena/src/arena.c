@@ -1,6 +1,7 @@
 #include "arena.h"
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 struct arena
@@ -40,10 +41,7 @@ bool arena_init_static(arena *a, void *buffer, size_t capacity)
 
     // Check that buffer is suitably aligned for any type.
     // max_align_t is the strictest fundamental alignment.
-    if ((uintptr_t)buffer % _Alignof(max_align_t) != 0)
-    {
-        return false;
-    }
+    if ((uintptr_t)buffer % _Alignof(max_align_t) != 0) return false;
 
     a->memory = (unsigned char *)buffer;
     a->capacity = capacity;

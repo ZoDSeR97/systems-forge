@@ -9,6 +9,7 @@ set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_subdirectory(libs/arena)
+add_subdirectory(libs/pool)
 add_subdirectory(libs/highwayhash)
 add_subdirectory(libs/hashtable)
 
