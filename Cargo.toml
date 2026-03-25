@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "libs/hashmap",
+    "libs/data/hashmap",
 ]
 resolver = "3"

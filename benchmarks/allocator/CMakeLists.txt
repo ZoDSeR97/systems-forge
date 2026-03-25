@@ -10,6 +10,6 @@ target_link_libraries(allocator_bench
 
 target_include_directories(allocator_bench
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/libs/arena/include
-        ${CMAKE_SOURCE_DIR}/libs/pool/include
+        ${CMAKE_SOURCE_DIR}/libs/allocator/arena/include
+        ${CMAKE_SOURCE_DIR}/libs/allocator/pool/include
 )
