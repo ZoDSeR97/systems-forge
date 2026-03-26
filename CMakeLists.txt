@@ -11,5 +11,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 add_subdirectory(libs/allocator/arena)
 add_subdirectory(libs/allocator/pool)
 add_subdirectory(libs/security/highwayhash)
+add_subdirectory(libs/data/hashtable)
 
 add_subdirectory(benchmarks/allocator)
