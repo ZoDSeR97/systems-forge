@@ -22,7 +22,7 @@ extern "C"
         void *free_list;   // head of the free list
         char *buffer;      // pointer to the actual memory (for optional checks)
         size_t free_count; // number of free objects
-    } pool;
+    } Pool;
 
     /**
      * @brief Initialises a pool.
@@ -33,7 +33,7 @@ extern "C"
      * @param obj_size  size (in bytes) of each object. Must be >= sizeof(void*).
      * @param capacity  number of objects in the pool
      */
-    int pool_init(pool *p, void *buffer, size_t obj_size, size_t capacity);
+    int pool_init(Pool *p, void *buffer, size_t obj_size, size_t capacity);
 
     /**
      * @brief Allocates one object from the pool.
@@ -41,7 +41,7 @@ extern "C"
      * @param p  pointer to the Pool
      * @return   pointer to an unused object, or NULL if the pool is exhausted
      */
-    void *pool_malloc(pool *p);
+    void *pool_malloc(Pool *p);
 
     /**
      * @brief Returns an object to the pool.
@@ -51,17 +51,17 @@ extern "C"
      *            The behaviour is undefined if obj is not a valid pool object
      *            or if it is already free.
      */
-    void pool_free(pool *p, void *obj);
+    void pool_free(Pool *p, void *obj);
 
     /**
      * @brief Resets the pool to its initial (all free) state.
      */
-    void pool_reset(pool *p);
+    void pool_reset(Pool *p);
 
     /**
      * @brief Returns the number of free objects currently available.
      */
-    size_t pool_free_count(const pool *p);
+    size_t pool_free_count(const Pool *p);
 
 #ifdef __cplusplus
 }

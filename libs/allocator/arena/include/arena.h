@@ -28,14 +28,14 @@ extern "C"
     /**
      * @brief Opaque type representing a fixed-capacity arena allocator.
      */
-    typedef struct arena arena;
+    typedef struct Arena Arena;
 
     /**
      * @brief Creates a heap‑allocated arena.
      * @param capacity Total bytes.
      * @return Pointer to arena, or NULL on failure.
      */
-    arena *arena_init(size_t capacity);
+    Arena *arena_init(size_t capacity);
 
     /**
      * @brief Initialises a static arena from user‑supplied memory.
@@ -44,7 +44,7 @@ extern "C"
      * @param capacity Size of buffer in bytes.
      * @return true on success, false if buffer is NULL or capacity==0.
      */
-    bool arena_init_static(arena *arena, void *buffer, size_t capacity);
+    bool arena_init_static(Arena *arena, void *buffer, size_t capacity);
 
     /**
      * @brief Allocates memory from the arena with specified alignment.
@@ -53,46 +53,46 @@ extern "C"
      * @param alignment Alignment in bytes (0 = default alignment).
      * @return Pointer to allocated memory, or NULL on failure.
      */
-    void *arena_malloc(arena *arena, size_t size, size_t alignment);
+    void *arena_malloc(Arena *arena, size_t size, size_t alignment);
 
     /**
      * @brief Resets the arena, invalidating all previous allocations.
      * @param arena Pointer to the arena.
      */
-    void arena_reset(arena *arena);
+    void arena_reset(Arena *arena);
 
     /**
      * @brief Resets and securely erases all memory in the arena.
      * @param arena Pointer to arena.
      */
-    void arena_reset_secure(arena *arena);
+    void arena_reset_secure(Arena *arena);
 
     /**
      * @brief Frees the memory used by the arena.
      * @param arena Pointer to the arena to free.
      */
-    void arena_free(arena *arena);
+    void arena_free(Arena *arena);
 
     /**
      * @brief Gets the total capacity of the arena.
      * @param arena Pointer to the arena.
      * @return Total capacity in bytes.
      */
-    size_t arena_capacity(const arena *arena);
+    size_t arena_capacity(const Arena *arena);
 
     /**
      * @brief Gets the number of bytes used in the arena.
      * @param arena Pointer to the arena.
      * @return Number of bytes used.
      */
-    size_t arena_used(const arena *arena);
+    size_t arena_used(const Arena *arena);
 
     /**
      * @brief Gets the number of bytes available in the arena.
      * @param arena Pointer to the arena.
      * @return Number of bytes available.
      */
-    size_t arena_available(const arena *arena);
+    size_t arena_available(const Arena *arena);
 #ifdef __cplusplus
 }
 #endif

@@ -1,0 +1,27 @@
+module(name = "forge_monorepo", version = "0.1.0")
+
+# Rust rules
+bazel_dep(name = "rules_rust", version = "0.69.0")
+
+# Zig rules (includes a C/C++ toolchain powered by Zig)
+bazel_dep(name = "rules_zig", version = "0.12.3")
+
+crate = use_extension("@rules_rust//crate_universe:extension.bzl", "crate")
+crate.from_cargo(
+    name = "forge_crates",
+    cargo_lockfile = "//:Cargo.lock",
+    manifests = [
+        "//:Cargo.toml",                    # root workspace manifest (if any)
+        "//libs/hashmap:Cargo.toml",
+    ],
+)
+use_repo(crate, "forge_crates")
+
+zig_ext = use_extension("@rules_zig//zig:extensions.bzl", "zig")
+zig_ext.toolchain(
+    zig_version = "0.15.2",
+    name = "zig",
+)
+use_repo(zig_ext, "zig_toolchains")
+
+register_toolchains("@zig_toolchains//:all")

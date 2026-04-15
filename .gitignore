@@ -462,3 +462,4 @@ Cargo.lock
 build/
 .github/
 docs/references/
+playground/

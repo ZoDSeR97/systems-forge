@@ -36,7 +36,7 @@ static void benchmark_malloc()
 
 static void benchmark_arena()
 {
-    arena *arena = arena_init(ARENA_CAPACITY);
+    Arena *arena = arena_init(ARENA_CAPACITY);
     if (!arena) std::abort();
 
     auto start = clock_type::now();
@@ -69,7 +69,7 @@ static void benchmark_pool()
     void *buffer = std::malloc(capacity * obj_size);
     if (!buffer) std::abort();
 
-    pool p;
+    Pool p;
     pool_init(&p, buffer, obj_size, capacity);
 
     auto start = clock_type::now();

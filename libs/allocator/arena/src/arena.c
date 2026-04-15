@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-struct arena
+struct Arena
 {
     size_t capacity;
     size_t offset;
@@ -14,12 +14,12 @@ struct arena
 
 /* -------- Public API -------- */
 
-arena *arena_init(size_t capacity)
+Arena *arena_init(size_t capacity)
 {
     if (capacity == 0) return NULL;
 
     /* allocate the struct itself */
-    arena *a = (arena *)malloc(sizeof(arena));
+    Arena *a = (Arena *)malloc(sizeof(Arena));
     if (!a) return NULL;
 
     a->memory = (unsigned char *)malloc(capacity);
@@ -35,7 +35,7 @@ arena *arena_init(size_t capacity)
     return a;
 }
 
-bool arena_init_static(arena *a, void *buffer, size_t capacity)
+bool arena_init_static(Arena *a, void *buffer, size_t capacity)
 {
     if (!a || !buffer || capacity == 0) return false;
 
@@ -50,7 +50,7 @@ bool arena_init_static(arena *a, void *buffer, size_t capacity)
     return true;
 }
 
-void *arena_malloc(arena *a, size_t size, size_t alignment)
+void *arena_malloc(Arena *a, size_t size, size_t alignment)
 {
     if (!a || size == 0) return NULL;
 
@@ -77,14 +77,14 @@ void *arena_malloc(arena *a, size_t size, size_t alignment)
     return result;
 }
 
-void arena_reset(arena *arena)
+void arena_reset(Arena *arena)
 {
     if (!arena) return;
 
     arena->offset = 0;
 }
 
-void arena_reset_secure(arena *a)
+void arena_reset_secure(Arena *a)
 {
     if (!a) return;
     // Overwrite entire arena memory with zeros (or a custom pattern)
@@ -92,7 +92,7 @@ void arena_reset_secure(arena *a)
     a->offset = 0;
 }
 
-void arena_free(arena *a)
+void arena_free(Arena *a)
 {
     if (!a) return;
     if (a->owns_memory)
@@ -105,17 +105,17 @@ void arena_free(arena *a)
     }
 }
 
-size_t arena_capacity(const arena *arena)
+size_t arena_capacity(const Arena *a)
 {
-    return arena ? arena->capacity : 0;
+    return a ? a->capacity : 0;
 }
 
-size_t arena_used(const arena *arena)
+size_t arena_used(const Arena *a)
 {
-    return arena ? arena->offset : 0;
+    return a ? a->offset : 0;
 }
 
-size_t arena_available(const arena *arena)
+size_t arena_available(const Arena *a)
 {
-    return arena ? arena->capacity - arena->offset : 0;
+    return a ? a->capacity - a->offset : 0;
 }
