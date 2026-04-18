@@ -23,6 +23,7 @@ add_subdirectory(libs/allocator/pool)
 add_subdirectory(libs/security/highwayhash)
 add_subdirectory(libs/data/hashtable)
 
+# Add benchmarks for libraries
 add_subdirectory(benchmarks/allocator)
 
 # Add source to this project's executable.
