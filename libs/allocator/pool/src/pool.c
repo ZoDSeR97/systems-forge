@@ -1,118 +1,80 @@
 #include "pool.h"
-#include <stdlib.h>
 #include <stdint.h>
 
-typedef struct Pool
+int pool_init(Pool *p, void *buffer, size_t obj_size, size_t capacity)
 {
-    void *memory;      /* pointer to allocated memory pool */
-    void *free_list;   /* head of free list (singly linked) */
-    size_t block_size; /* size of each block (bytes) */
-    size_t capacity;   /* total number of blocks */
-    size_t used;       /* number of currently allocated blocks */
-};
+    // Basic requirement: free list needs space for a pointer inside each block
+    if (obj_size < sizeof(void *))
+        return -1;
+    if (!buffer || capacity == 0)
+        return -1;
+    // Also check alignment if needed
+    if ((uintptr_t)buffer % _Alignof(void *) != 0)
+        return -1;
 
-/* Ensure block size is at least large enough to hold a free-list pointer */
-static size_t adjust_block_size(size_t block_size)
-{
-    if (block_size < sizeof(void *))
+    p->obj_size = obj_size;
+    p->capacity = capacity;
+    p->buffer = (char *)buffer;
+    p->free_list = buffer;
+    p->free_count = capacity;
+
+    // Link all free blocks together
+    char *block = (char *)buffer;
+    for (size_t i = 0; i < capacity - 1; i++)
     {
-        return sizeof(void *);
+        void **next = (void **)block; // next pointer lives at start of free block
+        *next = block + obj_size;
+        block += obj_size;
     }
-    /* Optionally align to pointer size for better performance */
-    size_t alignment = sizeof(void *);
-    return (block_size + alignment - 1) & ~(alignment - 1);
+    void **last = (void **)block;
+    *last = NULL; // end of free list
+    return 0;
 }
 
-Pool *pool_init(size_t block_size, size_t num_blocks)
+void *pool_malloc(Pool *p)
 {
-    if (num_blocks == 0)
-    {
+    if (!p->free_list)
         return NULL;
-    }
 
-    block_size = adjust_block_size(block_size);
-
-    /* Check for overflow in total memory allocation */
-    size_t total_size;
-    if (__builtin_mul_overflow(block_size, num_blocks, &total_size))
-    {
-        return NULL; /* Overflow */
-    }
-
-    Pool *pool = (Pool *)malloc(sizeof(Pool));
-    if (!pool)
-    {
-        return NULL;
-    }
-
-    pool->memory = malloc(total_size);
-    if (!pool->memory)
-    {
-        free(pool);
-        return NULL;
-    }
-
-    pool->block_size = block_size;
-    pool->capacity = num_blocks;
-    pool->used = 0;
-
-    /* Initialize free list as a linked list inside the memory pool */
-    char *block = (char *)pool->memory;
-    for (size_t i = 0; i < num_blocks; ++i)
-    {
-        void **next_ptr = (void **)block;
-        if (i == num_blocks - 1)
-        {
-            *next_ptr = NULL;
-        }
-        else
-        {
-            *next_ptr = block + block_size;
-        }
-        block += block_size;
-    }
-    pool->free_list = pool->memory;
-
-    return pool;
+    void *obj = p->free_list;
+    // Advance free_list to the next free block
+    p->free_list = *(void **)obj;
+    p->free_count--;
+    return obj;
 }
 
-void *pool_malloc(Pool *pool)
+void pool_free(Pool *p, void *obj)
 {
-    if (!pool || !pool->free_list)
-    {
-        return NULL;
-    }
-
-    void *block = pool->free_list;
-    pool->free_list = *(void **)block;
-    pool->used++;
-
-    return block;
-}
-
-void pool_pop(Pool *pool, void *ptr)
-{
-    if (!pool || !ptr)
-    {
+    if (obj == NULL)
         return;
-    }
 
-    /* Basic validation: check if ptr lies within pool memory */
-    if (ptr < pool->memory || (char *)ptr >= (char *)pool->memory + pool->capacity * pool->block_size)
-    {
-        return; /* Not from this pool – ignore */
-    }
-
-    *(void **)ptr = pool->free_list;
-    pool->free_list = ptr;
-    pool->used--;
+    // Place the freed block at the head of the free list
+    *(void **)obj = p->free_list;
+    p->free_list = obj;
+    p->free_count++;
 }
 
-void pool_free(Pool *pool)
+void pool_reset(Pool *p)
 {
-    if (pool)
+    if (!p)
+        return;
+
+    /* Re‑link all blocks as a free list */
+    p->free_list = p->buffer;
+    p->free_count = p->capacity;
+
+    char *block = p->buffer;
+    for (size_t i = 0; i < p->capacity - 1; i++)
     {
-        free(pool->memory);
-        free(pool);
+        void **next = (void **)block;
+        *next = block + p->obj_size;
+        block += p->obj_size;
     }
+    void **last = (void **)block;
+    *last = NULL;
+}
+
+size_t pool_free_count(const Pool *p)
+{
+    return p ? p->free_count : 0;
 }
