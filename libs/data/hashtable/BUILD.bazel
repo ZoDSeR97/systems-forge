@@ -1,0 +1,20 @@
+cc_library(
+    name = "hashtable",
+    srcs = [
+        "src/hashtable.c",
+    ],
+    hdrs = [
+        "include/hashtable.h",
+        "include/cwisstable.h",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//libs/security/highwayhash",
+    ],
+    copts = [
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+    ],
+)

@@ -1,0 +1,16 @@
+cc_library(
+    name = "linkedlist",
+    srcs = [
+        "src/linkedlist.c",
+    ],
+    hdrs = [
+        "include/linkedlist.h",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    copts = [
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+    ],
+)

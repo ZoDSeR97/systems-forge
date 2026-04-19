@@ -7,61 +7,41 @@
 extern "C"
 {
 #endif
-    /**
-     * @brief Pool – fixed‑capacity memory pool for objects of any type.
-     *
-     * The pool uses a free list stored inside free blocks, so each object
-     * must be at least as large as a pointer (sizeof(void*)).
-     *
-     * Thread safety: not thread‑safe. Protect with external mutex if needed.
-     */
-    typedef struct
-    {
-        size_t obj_size;   // size of each object
-        size_t capacity;   // total number of objects
-        void *free_list;   // head of the free list
-        char *buffer;      // pointer to the actual memory (for optional checks)
-        size_t free_count; // number of free objects
-    } Pool;
+    /* Opaque pool type */
+    typedef struct Pool Pool;
 
     /**
-     * @brief Initialises a pool.
+     * Initialize a new pool allocator.
      *
-     * @param p         pointer to the Pool structure to initialise
-     * @param buffer    pointer to a memory area large enough for 'capacity' objects.
-     *                  The buffer must be correctly aligned for the object type.
-     * @param obj_size  size (in bytes) of each object. Must be >= sizeof(void*).
-     * @param capacity  number of objects in the pool
+     * @param block_size   Size of each fixed block (bytes). If < sizeof(void*),
+     *                     it will be rounded up to sizeof(void*).
+     * @param num_blocks   Number of blocks in the pool.
+     * @return             Initialized pool, or NULL on failure.
      */
-    int pool_init(Pool *p, void *buffer, size_t obj_size, size_t capacity);
+    Pool *pool_init(size_t block_size, size_t num_blocks);
 
     /**
-     * @brief Allocates one object from the pool.
+     * Allocate one block from the pool.
      *
-     * @param p  pointer to the Pool
-     * @return   pointer to an unused object, or NULL if the pool is exhausted
+     * @param pool   Pointer to the pool.
+     * @return       Pointer to allocated block, or NULL if pool is exhausted.
      */
-    void *pool_malloc(Pool *p);
+    void *pool_malloc(Pool *pool);
 
     /**
-     * @brief Returns an object to the pool.
+     * Free a previously allocated block back to the pool.
      *
-     * @param p   pointer to the Pool
-     * @param obj pointer previously obtained from pool_alloc().
-     *            The behaviour is undefined if obj is not a valid pool object
-     *            or if it is already free.
+     * @param pool   Pointer to the pool.
+     * @param ptr    Pointer to the block to free (must have been returned by pool_alloc).
      */
-    void pool_free(Pool *p, void *obj);
+    void pool_pop(Pool *pool, void *ptr);
 
     /**
-     * @brief Resets the pool to its initial (all free) state.
+     * Destroy the pool and free all associated memory.
+     *
+     * @param pool   Pointer to the pool (becomes invalid after call).
      */
-    void pool_reset(Pool *p);
-
-    /**
-     * @brief Returns the number of free objects currently available.
-     */
-    size_t pool_free_count(const Pool *p);
+    void pool_free(Pool *pool);
 
 #ifdef __cplusplus
 }

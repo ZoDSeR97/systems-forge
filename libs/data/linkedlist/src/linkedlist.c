@@ -14,29 +14,23 @@ struct LinkedList
     LinkedListNode *head;
     LinkedListNode *tail;
     size_t size;
-    void *allocator; // Points to Arena if using Arena, NULL if using malloc
 };
 
-LinkedList *linkedlist_init(LinkedList *list, void *allocator)
+LinkedList *linkedlist_init()
 {
+    LinkedList *list = (LinkedList *)malloc(sizeof(LinkedList));
+    if (!list)
+        return NULL;
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
-    list->allocator = allocator;
     return list;
 }
 
 static LinkedListNode *allocate_node(LinkedList *list)
 {
     LinkedListNode *new_node = NULL;
-    if (list->allocator != NULL)
-    {
-        new_node = (LinkedListNode *)arena_malloc(list->allocator, sizeof(LinkedListNode), 0);
-    }
-    else
-    {
-        new_node = (LinkedListNode *)malloc(sizeof(LinkedListNode));
-    }
+    new_node = (LinkedListNode *)malloc(sizeof(LinkedListNode));
 
     if (new_node)
     {
@@ -52,23 +46,18 @@ void linkedlist_free(LinkedList *list)
     if (!list)
         return;
 
-    if (list->allocator == NULL)
+    LinkedListNode *current = list->head;
+    while (current)
     {
-        LinkedListNode *current = list->head;
-        while (current)
-        {
-            LinkedListNode *next = current->next;
-            if (list->allocator == NULL)
-            {
-                free(current);
-            }
-            current = next;
-        }
+        LinkedListNode *next = current->next;
+        free(current);
+        current = next;
     }
 
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
+    free(list);
 }
 
 void linkedlist_push(LinkedList *list, void *data)
@@ -140,10 +129,7 @@ void linkedlist_pop(LinkedList *list)
         list->head = NULL;
     }
 
-    if (list->allocator == NULL)
-    {
-        free(to_remove);
-    }
+    free(to_remove);
 
     list->size--;
 }
@@ -165,10 +151,7 @@ void linkedlist_fpop(LinkedList *list)
         list->tail = NULL;
     }
 
-    if (list->allocator == NULL)
-    {
-        free(to_remove);
-    }
+    free(to_remove);
 
     list->size--;
 }
@@ -198,10 +181,7 @@ void *linkedlist_npop(LinkedList *list, size_t index)
 
             void *data = current->data;
 
-            if (list->allocator == NULL)
-            {
-                free(current);
-            }
+            free(current);
 
             list->size--;
             return;
@@ -242,4 +222,67 @@ bool linkedlist_is_empty(const LinkedList *list)
 size_t linkedlist_size(const LinkedList *list)
 {
     return (list == NULL) ? 0 : list->size;
+}
+
+void *linkedlist_node_data(const LinkedListNode *node)
+{
+    return (node == NULL) ? NULL : node->data;
+}
+
+void *linkedlist_fpop_data(LinkedList *list)
+{
+    if (!list || !list->head)
+        return NULL;
+
+    LinkedListNode *to_remove = list->head;
+    void *data = to_remove->data;
+
+    list->head = to_remove->next;
+    if (list->head)
+    {
+        list->head->prev = NULL;
+    }
+    else
+    {
+        list->tail = NULL;
+    }
+
+    free(to_remove);
+
+    list->size--;
+    return data;
+}
+
+void *linkedlist_pop_data(LinkedList *list)
+{
+    if (!list || !list->tail)
+        return NULL;
+
+    LinkedListNode *to_remove = list->tail;
+    void *data = to_remove->data;
+
+    list->tail = to_remove->prev;
+    if (list->tail)
+    {
+        list->tail->next = NULL;
+    }
+    else
+    {
+        list->head = NULL;
+    }
+
+    free(to_remove);
+
+    list->size--;
+    return data;
+}
+
+void *linkedlist_fpeek(const LinkedList *list)
+{
+    return (list == NULL || list->head == NULL) ? NULL : list->head->data;
+}
+
+void *linkedlist_peek(const LinkedList *list)
+{
+    return (list == NULL || list->tail == NULL) ? NULL : list->tail->data;
 }

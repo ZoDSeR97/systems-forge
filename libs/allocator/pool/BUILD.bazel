@@ -1,0 +1,16 @@
+cc_library(
+    name = "pool",
+    srcs = [
+        "src/pool.c",
+    ],
+    hdrs = [
+        "include/pool.h",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    copts = [
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+    ]
+)

@@ -1,72 +1,57 @@
 # .bazelrc
 
-# ------------------------------
-# Basic settings
-# ------------------------------
-common --announce_rc          # Show which rc files are loaded (useful for debugging)
+## Global settings (applies to all commands)
 
-# ------------------------------
-# Build output & UI
-# ------------------------------
-build --verbose_failures       # Show full command lines on failure
-build --sandbox_debug          # Keep sandbox dirs for debugging
-build --show_result=100        # Show up to 100 outputs
-build --show_timestamps        # Add timestamps to messages
+common --announce_rc              # show which rc files are loaded (debugging)
+common --show_timestamps          # timestamp each log line
 
-# ------------------------------
-# Compilation modes (optimization)
-# ------------------------------
-# These are built‑in; you can still add extra flags.
+## Build performance & resource control
+
+build --jobs=auto
+build --local_cpu_resources=HOST_CPUS
+build --local_ram_resources=HOST_RAM * 0.8
+
+## Disk cache for faster incremental builds
+
+build --disk_cache=~/.bazel-cache
+
+## Keep sandbox directories when a build fails (debugging)
+
+build --sandbox_debug
+
+## Output & failure reporting
+
+build --verbose_failures          # show full command line on failure
+build --show_result=50            # show up to 50 outputs (reduced from 100)
+
+## Compilation modes
+
 build:dbg --compilation_mode=dbg
 build:fastbuild --compilation_mode=fastbuild
 build:opt --compilation_mode=opt
 
-# Optionally, override optimization levels for specific languages:
-# For C/C++, add extra flags when in opt mode
-build:opt --copt=-O3           # override default -O2 to -O3
-# For Rust, you can pass flags to rustc via --@rules_rust//:rustc_opt_flags
-# build:opt --@rules_rust//:rustc_opt_flags="-C opt-level=3"
+### Rust optimization: only enable CPU‑native code when explicitly asked
 
-# ------------------------------
-# Zig toolchain (already registered, but we can set defaults)
-# ------------------------------
-# Ensure Zig is used for all C/C++ compilation (the toolchain registration does this)
-# Optionally set Zig cache directory to avoid permission issues on Windows
+build:opt --@rules_rust//:rustc_flags=["-Copt-level=3"]
+
+## Zig toolchain (C/C++ compiler)
+
 build --action_env=ZIG_GLOBAL_CACHE_DIR=.zig-cache
 
-# ------------------------------
-# Rust specific flags
-# ------------------------------
-# Use the same toolchain for all Rust builds (rules_rust already picks the right one)
-# If you have custom rustc flags, add them here:
-build --@rules_rust//:rustc_flags=["-Ctarget-cpu=native"]
+## Testing
 
-# ------------------------------
-# Remote caching / execution (optional)
-# ------------------------------
-# Example with a local disk cache
-build --disk_cache=~/.bazel-cache
-# Remote cache (if you have one)
-# build --remote_cache=https://your-cache.example.com
-# build --remote_upload_local_results=true
+test --test_output=errors
+test --test_summary=detailed
+test --test_timeout=60,300,900,3600
 
-# ------------------------------
-# Cross‑compilation configurations
-# ------------------------------
-# Define platforms for cross‑compiling
+## Cross‑compilation (example platforms – define them in //toolchains/BUILD)
+
 build:linux_arm64 --platforms=//toolchains:linux_arm64
 build:linux_amd64 --platforms=//toolchains:linux_amd64
 build:windows_amd64 --platforms=//toolchains:windows_amd64
 
-# ------------------------------
-# Test settings
-# ------------------------------
-test --test_output=errors      # Show only failed tests' output
-test --test_summary=detailed   # Print detailed test summary
-test --test_timeout=60,300,900,3600  # timeouts: short, moderate, long, eternal
+## Debugging config (extra verbose, keeps everything)
 
-# ------------------------------
-# Convenience aliases
-# ------------------------------
-# Use --config=release for an optimized build with debug symbols? Up to you.
-build:release -c opt --strip=never
+build:debug --verbose_failures
+build:debug --sandbox_debug
+build:debug --show_result=100

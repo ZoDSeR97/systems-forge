@@ -57,28 +57,17 @@ static void benchmark_arena()
 
 static void benchmark_pool()
 {
-    // The pool requires each object to be at least sizeof(void*)
-    size_t obj_size = ALLOC_SIZE;
-    if (obj_size < sizeof(void *)) obj_size = sizeof(void *);
-
-    // With immediate free, a single block is enough, but we'll use a small
-    // constant capacity to keep the benchmark realistic.
-    const size_t capacity = 1;
-
-    // Allocate a correctly aligned buffer (malloc guarantees suitable alignment)
-    void *buffer = std::malloc(capacity * obj_size);
-    if (!buffer) std::abort();
-
-    Pool p;
-    pool_init(&p, buffer, obj_size, capacity);
+    // Create pool with single block; allocate then immediately free
+    Pool *pool = pool_init(ALLOC_SIZE, 1);
+    if (!pool) std::abort();
 
     auto start = clock_type::now();
 
     for (size_t i = 0; i < NUM_ALLOCS; ++i)
     {
-        void *ptr = pool_malloc(&p);
-        if (!ptr) std::abort(); // should never happen with capacity >= 1
-        pool_free(&p, ptr);
+        void *ptr = pool_malloc(pool);
+        if (!ptr) std::abort();
+        pool_pop(pool, ptr);
     }
 
     auto end = clock_type::now();
@@ -86,7 +75,7 @@ static void benchmark_pool()
 
     std::cout << "pool: " << diff.count() << " s\n";
 
-    std::free(buffer);
+    pool_free(pool);
 }
 
 int main()

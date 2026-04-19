@@ -21,20 +21,14 @@ extern "C"
     static LinkedListNode *allocate_node(LinkedList *list);
 
     /**
-     * Initializes a linked list with the given allocator.
-     * @param list Pointer to linkedlist structure to initialize.
-     * @param allocator Pointer to arena allocator, or NULL to use malloc.
-     *                  When using arena, caller is responsible for arena lifecycle.
-     * @return Pointer to initialized list (same as list parameter).
+     * Allocates and initializes a new linked list with the given allocator.
+     * @return Pointer to initialized list.
      */
-    LinkedList *linkedlist_init(LinkedList *list, void *allocator);
+    LinkedList *linkedlist_init();
 
     /**
-     * Frees the linked list and all nodes (when using malloc).
-     * When allocator==NULL, all nodes are freed.
-     * When allocator!=NULL (arena), only list metadata is cleared;
-     * caller is responsible for freeing the arena.
-     * Does not free user data pointed to by nodes.
+     * Frees the linked list structure and all nodes.
+     * @param list Pointer to the linked list
      */
     void linkedlist_free(LinkedList *list);
 
@@ -79,6 +73,41 @@ extern "C"
      * Returns the number of items in the list. O(1)
      */
     size_t linkedlist_size(const LinkedList *list);
+
+    /**
+     * Gets the data pointer from a node. O(1)
+     * @param node Pointer to LinkedListNode (from linkedlist_get)
+     * @return Data pointer stored in the node, or NULL if node is NULL
+     */
+    void *linkedlist_node_data(const LinkedListNode *node);
+
+    /**
+     * Removes first item and returns its data. O(1)
+     * @param list Pointer to the linked list
+     * @return Data from the first node, or NULL if list is empty
+     */
+    void *linkedlist_fpop_data(LinkedList *list);
+
+    /**
+     * Removes last item and returns its data. O(1)
+     * @param list Pointer to the linked list
+     * @return Data from the last node, or NULL if list is empty
+     */
+    void *linkedlist_pop_data(LinkedList *list);
+
+    /**
+     * Returns data from first item without removing. O(1)
+     * @param list Pointer to the linked list
+     * @return Data from the first node, or NULL if list is empty
+     */
+    void *linkedlist_fpeek(const LinkedList *list);
+
+    /**
+     * Returns data from last item without removing. O(1)
+     * @param list Pointer to the linked list
+     * @return Data from the last node, or NULL if list is empty
+     */
+    void *linkedlist_peek(const LinkedList *list);
 
 #ifdef __cplusplus
 }

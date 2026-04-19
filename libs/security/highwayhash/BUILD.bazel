@@ -1,0 +1,17 @@
+cc_library(
+    name = "highwayhash",
+    srcs = [
+        "src/highwayhash.c",
+    ],
+    hdrs = [
+        "include/highwayhash.h",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    copts = [
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+    ],
+)
