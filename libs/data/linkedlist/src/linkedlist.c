@@ -1,7 +1,6 @@
 #include "linkedlist.h"
-#include <stdlib.h>
-#include <stdbool.h>
 
+/* LinkedListNode structure definition */
 struct LinkedListNode
 {
     void *data;
@@ -9,6 +8,7 @@ struct LinkedListNode
     struct LinkedListNode *next;
 };
 
+/* LinkedList structure definition */
 struct LinkedList
 {
     LinkedListNode *head;
@@ -16,22 +16,10 @@ struct LinkedList
     size_t size;
 };
 
-LinkedList *linkedlist_init()
+/* Internal node allocator using the configurable macro */
+static LinkedListNode *allocate_node(void)
 {
-    LinkedList *list = (LinkedList *)malloc(sizeof(LinkedList));
-    if (!list)
-        return NULL;
-    list->head = NULL;
-    list->tail = NULL;
-    list->size = 0;
-    return list;
-}
-
-static LinkedListNode *allocate_node(LinkedList *list)
-{
-    LinkedListNode *new_node = NULL;
-    new_node = (LinkedListNode *)malloc(sizeof(LinkedListNode));
-
+    LinkedListNode *new_node = (LinkedListNode *)LINKEDLIST_MALLOC(sizeof(LinkedListNode));
     if (new_node)
     {
         new_node->next = NULL;
@@ -39,6 +27,19 @@ static LinkedListNode *allocate_node(LinkedList *list)
         new_node->data = NULL;
     }
     return new_node;
+}
+
+/* Public API */
+
+LinkedList *linkedlist_init()
+{
+    LinkedList *list = (LinkedList *)LINKEDLIST_MALLOC(sizeof(LinkedList));
+    if (!list)
+        return NULL;
+    list->head = NULL;
+    list->tail = NULL;
+    list->size = 0;
+    return list;
 }
 
 void linkedlist_free(LinkedList *list)
@@ -50,14 +51,11 @@ void linkedlist_free(LinkedList *list)
     while (current)
     {
         LinkedListNode *next = current->next;
-        free(current);
+        LINKEDLIST_FREE(current);
         current = next;
     }
 
-    list->head = NULL;
-    list->tail = NULL;
-    list->size = 0;
-    free(list);
+    LINKEDLIST_FREE(list);
 }
 
 void linkedlist_push(LinkedList *list, void *data)
@@ -65,7 +63,7 @@ void linkedlist_push(LinkedList *list, void *data)
     if (!list)
         return;
 
-    LinkedListNode *new_node = allocate_node(list);
+    LinkedListNode *new_node = allocate_node();
     if (!new_node)
         return;
 
@@ -91,7 +89,7 @@ void linkedlist_fpush(LinkedList *list, void *data)
     if (!list)
         return;
 
-    LinkedListNode *new_node = allocate_node(list);
+    LinkedListNode *new_node = allocate_node();
     if (!new_node)
         return;
 
@@ -129,8 +127,7 @@ void linkedlist_pop(LinkedList *list)
         list->head = NULL;
     }
 
-    free(to_remove);
-
+    LINKEDLIST_FREE(to_remove);
     list->size--;
 }
 
@@ -151,15 +148,14 @@ void linkedlist_fpop(LinkedList *list)
         list->tail = NULL;
     }
 
-    free(to_remove);
-
+    LINKEDLIST_FREE(to_remove);
     list->size--;
 }
 
 void *linkedlist_npop(LinkedList *list, size_t index)
 {
     if (!list || index >= list->size)
-        return; // not valid list or index out of bounds
+        return NULL;
 
     LinkedListNode *current = list->head;
     size_t current_index = 0;
@@ -168,7 +164,7 @@ void *linkedlist_npop(LinkedList *list, size_t index)
     {
         if (current_index == index)
         {
-            // Unlink the node
+            /* Unlink the node */
             if (current->prev)
                 current->prev->next = current->next;
             else
@@ -180,9 +176,7 @@ void *linkedlist_npop(LinkedList *list, size_t index)
                 list->tail = current->prev; // Removing tail
 
             void *data = current->data;
-
-            free(current);
-
+            LINKEDLIST_FREE(current);
             list->size--;
             return;
         }
@@ -191,7 +185,7 @@ void *linkedlist_npop(LinkedList *list, size_t index)
         current_index++;
     }
 
-    return; // Should not reach here if index is valid, but return NULL just in case
+    return NULL;
 }
 
 LinkedListNode *linkedlist_get(const LinkedList *list, size_t index)
@@ -247,8 +241,7 @@ void *linkedlist_fpop_data(LinkedList *list)
         list->tail = NULL;
     }
 
-    free(to_remove);
-
+    LINKEDLIST_FREE(to_remove);
     list->size--;
     return data;
 }
@@ -271,8 +264,7 @@ void *linkedlist_pop_data(LinkedList *list)
         list->head = NULL;
     }
 
-    free(to_remove);
-
+    LINKEDLIST_FREE(to_remove);
     list->size--;
     return data;
 }

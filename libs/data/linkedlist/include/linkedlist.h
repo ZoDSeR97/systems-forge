@@ -13,12 +13,13 @@ extern "C"
     typedef struct LinkedListNode LinkedListNode;
     typedef struct LinkedList LinkedList;
 
-    /**
-     * Allocates a new node for the linked list.
-     * @param list Pointer to the linked list.
-     * @return Pointer to the allocated node, or NULL on failure.
-     */
-    static LinkedListNode *allocate_node(LinkedList *list);
+    /* Allow overriding memory allocation functions */
+    #ifndef LINKEDLIST_MALLOC
+        #define LINKEDLIST_MALLOC(linkedlist_size) malloc(linkedlist_size)
+    #endif
+    #ifndef LINKEDLIST_FREE
+        #define LINKEDLIST_FREE(ptr) free(ptr)
+    #endif
 
     /**
      * Allocates and initializes a new linked list with the given allocator.
